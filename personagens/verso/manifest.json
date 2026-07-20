@@ -1,0 +1,24 @@
+{
+  "nome": "verso",
+  "quadro": [
+    260,
+    240
+  ],
+  "base_y": 232,
+  "poses": {
+    "parado": "parado.png",
+    "passo_a": "passo_a.png",
+    "passo_b": "passo_b.png",
+    "passo_c": "passo_c.png",
+    "costas": "costas.png",
+    "costas_passo": "costas_passo.png",
+    "lado": "lado.png",
+    "lado_passo": "lado_passo.png",
+    "sentar": "sentar.png",
+    "deitar": "deitar.png",
+    "acenar": "acenar.png",
+    "piscar": "piscar.png",
+    "feliz": "feliz.png",
+    "triste": "triste.png"
+  }
+}

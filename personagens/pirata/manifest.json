@@ -1,0 +1,19 @@
+{
+  "nome": "pirata",
+  "quadro": [
+    260,
+    240
+  ],
+  "base_y": 232,
+  "poses": {
+    "parado": "parado.png",
+    "passo_a": "passo_a.png",
+    "passo_b": "passo_b.png",
+    "costas": "costas.png",
+    "lado": "lado.png",
+    "sentar": "sentar.png",
+    "acenar": "acenar.png",
+    "feliz": "feliz.png",
+    "triste": "triste.png"
+  }
+}

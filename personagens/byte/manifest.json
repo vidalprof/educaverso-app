@@ -1,0 +1,10 @@
+{
+  "nome": "byte",
+  "poses": {
+    "parado": "parado.png",
+    "lado": "lado.png",
+    "lado_passo": "lado_passo.png",
+    "feliz": "feliz.png",
+    "acenar": "acenar.png"
+  }
+}
