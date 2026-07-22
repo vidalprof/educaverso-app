@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><script>
+    // O modo do jogo vem da URL (ex.: jogo.html?ilha, jogo.html?tabuada).
+    // Se ninguém passar modo, cai no menu do app.
+    (function () {
+      var qs = new URLSearchParams(location.search);
+      var modos = ['ilha','tabuada','rpg','fases','fabrica','fgrid','autor','f1'];
+      var achou = modos.some(function (m) { return qs.has(m); });
+      if (!achou) { location.replace('./index.html'); }
+    })();
+  </script>
+  <meta charset="utf-8"><link rel="icon" href="data:,">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>EducaVerso — Ilha do Tesouro</title>
+  <style>
+    * { -webkit-box-sizing: border-box; box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #060c18; overflow: hidden; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    #game { position: absolute; inset: 0; }
+    #game canvas { display: block; margin: 0 auto; }
+
+    /* botão Ouvir (sempre à mão — repete a última fala) */
+    #btnOuvir { position: fixed; top: 10px; right: 12px; z-index: 15; cursor: pointer;
+      border: 0; border-radius: 999px; font-size: 15px; font-weight: 800; padding: 10px 16px;
+      background: #ffcf5a; color: #3a2a00; box-shadow: 0 3px 0 #b8912f; }
+    #btnOuvir:active { transform: translateY(2px); box-shadow: 0 1px 0 #b8912f; }
+
+    /* HUD da missão (aparece só quando a criança está montando os passos) */
+    #hud { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; text-align: center;
+      background: linear-gradient(180deg, rgba(10,20,40,0) 0%, rgba(10,20,40,.78) 45%); padding: 4px 6px 10px; color: #fff; }
+    #dica { font-size: 14px; color: #cfe0ff; min-height: 18px; margin-bottom: 4px; text-shadow: 0 1px 3px #000; }
+    #passos { min-height: 40px; max-width: 620px; margin: 0 auto 6px; background: rgba(8,16,32,.62); border: 2px dashed #2c3f6d; border-radius: 12px;
+      padding: 4px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
+    #passos .vazio { color: #8ea1cf; font-size: 12px; padding: 6px; }
+    .chip { width: 30px; height: 30px; margin: 3px; background: #ffd25a; color: #12183a; border-radius: 8px; font-size: 18px; font-weight: 900; line-height: 30px; }
+    .btns { display: flex; justify-content: center; flex-wrap: wrap; align-items: center; }
+    .seta { width: 48px; height: 48px; margin: 3px; font-size: 23px; font-weight: 900; color: #12183a; background: #eaf1ff; border: 0; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 0 #9fb0da; }
+    .seta:active { transform: translateY(3px); box-shadow: 0 1px 0 #9fb0da; }
+    .acao { cursor: pointer; border: 0; border-radius: 12px; font-size: 15px; font-weight: 800; padding: 11px 16px; margin: 4px; }
+    .jogar { background: #57e08a; color: #0b2350; box-shadow: 0 4px 0 #2e9c5b; }
+    .limpar { background: #2c3f6d; color: #eaf1ff; }
+    .acao:active { transform: translateY(2px); }
+
+    .overlay { position: fixed; inset: 0; z-index: 20; background: rgba(4,10,22,.84); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; }
+    .balaoDom { background: #fff; color: #123a7a; border-radius: 20px; padding: 20px 22px; max-width: 480px; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,.5); }
+    .balaoDom .em { font-size: 52px; } .balaoDom h2 { font-size: 22px; margin: 8px 0; } .balaoDom p { font-size: 16px; line-height: 1.5; color: #3a4d78; }
+    .balaoDom .concl { color: #c06a1a; font-weight: 800; }
+    .medalha { display: inline-block; background: radial-gradient(circle at 30% 30%, #ffe9a0, #d9a23c 70%); color: #5a3c00;
+      border-radius: 999px; width: 92px; height: 92px; line-height: 92px; font-size: 40px; box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 2px 6px rgba(255,255,255,.6); }
+    .hidden { display: none !important; }
+  </style>
+  <script>
+    // 🐞 TRAVA CAÇA-BUG: qualquer erro de JS pinta uma FAIXA VERMELHA na tela.
+    // Assim o QA por screenshot PEGA o erro na hora (foi o que faltou antes).
+    (function () {
+      function mostra (msg) {
+        var d = document.getElementById('erroJS') || document.createElement('div');
+        d.id = 'erroJS';
+        d.style.cssText = 'position:fixed;left:0;top:0;right:0;z-index:99999;background:#c81e1e;color:#fff;font:700 14px system-ui;padding:10px 14px;white-space:pre-wrap;';
+        d.textContent = ' ERRO JS (o jogo travou): ' + msg;
+        if (!d.parentNode) document.body.appendChild(d);
+      }
+      window.addEventListener('error', function (e) { mostra((e.message || '') + ' @ ' + (e.filename || '') + ':' + (e.lineno || '')); });
+      window.addEventListener('unhandledrejection', function (e) { mostra('promise: ' + (e.reason && e.reason.message ? e.reason.message : e.reason)); });
+    })();
+  </script>
+  <script type="module" crossorigin src="./assets/index-Bsg1uV1O.js"></script>
+</head>
+<body>
+  <div id="game"></div>
+
+  <button id="btnOuvir">Ouvir</button>
+
+  <div id="hud" class="hidden">
+    <div id="dica"></div>
+    <div id="passos"><span class="vazio">seus passos aparecem aqui…</span></div>
+    <div class="btns">
+      <button class="seta" data-dir="cima">↑</button>
+      <button class="seta" data-dir="baixo">↓</button>
+      <button class="seta" data-dir="esq">←</button>
+      <button class="seta" data-dir="dir">→</button>
+      <button class="acao jogar" id="btnJogar">▶ Jogar</button>
+      <button class="acao limpar" id="btnLimpar">↺ Limpar</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="telaIntro">
+    <div class="balaoDom">
+      <div class="em"></div>
+      <h2>Ilha do Tesouro</h2>
+      <p>Uma ilha à noite, iluminada pela lua e por tochas. Explore, converse e
+         ajude quem precisar de você!</p>
+      <button class="acao jogar" id="btnComecar" style="margin-top:10px">Entrar na ilha 🧭</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="telaWin">
+    <div class="balaoDom">
+      <div class="medalha">🏆</div>
+      <h2>Você criou um ALGORITMO!</h2>
+      <p>Uma sequência de passos, na ordem certa, que resolveu um problema de
+         verdade — o Chico chegou ao baú por sua causa.</p>
+      <p class="concl">Quem monta os passos certinhos… programa! </p>
+      <button class="acao jogar" id="btnDeNovo" style="margin-top:10px">Continuar explorando </button>
+    </div>
+  </div>
+
+</body>
+</html>

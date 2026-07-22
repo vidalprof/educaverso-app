@@ -1,100 +1,157 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><script>window.__BOOT='tabuada'</script>
-  <meta charset="utf-8"><link rel="icon" href="data:,">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>EducaVerso — Ilha do Tesouro</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>EducaVerso — Aprender Brincando</title>
+  <meta name="description" content="Um universo de brincadeiras que ensinam: lógica, tabuada e muito mais." />
+
+  <!-- PWA: instalável no celular/tablet -->
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#0a1834" />
+  <link rel="icon" href="./icone-192.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="EducaVerso" />
+
   <style>
-    * { -webkit-box-sizing: border-box; box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: #060c18; overflow: hidden; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-    #game { position: absolute; inset: 0; }
-    #game canvas { display: block; margin: 0 auto; }
+    :root{
+      --azul:#060c18; --azul2:#0a1834; --card:#132a54; --card2:#0e1f3f;
+      --borda:#2c3f6d; --ouro:#ffcf5a; --ouro2:#f4b63c; --texto:#eaf1ff; --suave:#9fb0da;
+    }
+    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+    html,body{margin:0; min-height:100%; background-color:#060c18}
+    body{
+      font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--texto);
+      background:
+        radial-gradient(1200px 600px at 50% -10%, #16357a 0%, rgba(10,24,52,0) 60%),
+        radial-gradient(circle at 15% 20%, #fff 0 1px, transparent 2px) 0 0/140px 120px,
+        radial-gradient(circle at 70% 45%, #cfe0ff 0 1px, transparent 2px) 0 0/200px 170px,
+        radial-gradient(circle at 40% 80%, #fff 0 1px, transparent 2px) 0 0/170px 150px,
+        linear-gradient(180deg, var(--azul2) 0%, var(--azul) 100%);
+      background-attachment:fixed;
+      overflow-x:hidden; min-height:100dvh;
+      padding:max(18px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+    }
 
-    /* botão Ouvir (sempre à mão — repete a última fala) */
-    #btnOuvir { position: fixed; top: 10px; right: 12px; z-index: 15; cursor: pointer;
-      border: 0; border-radius: 999px; font-size: 15px; font-weight: 800; padding: 10px 16px;
-      background: #ffcf5a; color: #3a2a00; box-shadow: 0 3px 0 #b8912f; }
-    #btnOuvir:active { transform: translateY(2px); box-shadow: 0 1px 0 #b8912f; }
+    header{max-width:900px; margin:8px auto 4px; text-align:center}
+    .planeta{width:96px; height:96px; display:block; margin:0 auto 10px; animation:flutua 5s ease-in-out infinite}
+    @keyframes flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    h1{font-size:clamp(30px,7vw,46px); margin:0; letter-spacing:.5px;
+      background:linear-gradient(180deg,#fff,#ffe6a6); -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow:0 2px 18px rgba(255,207,90,.25)}
+    h1 b{color:var(--ouro); -webkit-text-fill-color:var(--ouro)}
+    .sub{color:var(--suave); font-size:clamp(14px,3.6vw,17px); margin:6px 0 0}
 
-    /* HUD da missão (aparece só quando a criança está montando os passos) */
-    #hud { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; text-align: center;
-      background: linear-gradient(180deg, rgba(10,20,40,0) 0%, rgba(10,20,40,.78) 45%); padding: 4px 6px 10px; color: #fff; }
-    #dica { font-size: 14px; color: #cfe0ff; min-height: 18px; margin-bottom: 4px; text-shadow: 0 1px 3px #000; }
-    #passos { min-height: 40px; max-width: 620px; margin: 0 auto 6px; background: rgba(8,16,32,.62); border: 2px dashed #2c3f6d; border-radius: 12px;
-      padding: 4px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
-    #passos .vazio { color: #8ea1cf; font-size: 12px; padding: 6px; }
-    .chip { width: 30px; height: 30px; margin: 3px; background: #ffd25a; color: #12183a; border-radius: 8px; font-size: 18px; font-weight: 900; line-height: 30px; }
-    .btns { display: flex; justify-content: center; flex-wrap: wrap; align-items: center; }
-    .seta { width: 48px; height: 48px; margin: 3px; font-size: 23px; font-weight: 900; color: #12183a; background: #eaf1ff; border: 0; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 0 #9fb0da; }
-    .seta:active { transform: translateY(3px); box-shadow: 0 1px 0 #9fb0da; }
-    .acao { cursor: pointer; border: 0; border-radius: 12px; font-size: 15px; font-weight: 800; padding: 11px 16px; margin: 4px; }
-    .jogar { background: #57e08a; color: #0b2350; box-shadow: 0 4px 0 #2e9c5b; }
-    .limpar { background: #2c3f6d; color: #eaf1ff; }
-    .acao:active { transform: translateY(2px); }
+    main{max-width:900px; margin:22px auto 0}
+    .titulo-secao{font-size:14px; color:var(--suave); text-transform:uppercase; letter-spacing:2px; margin:0 4px 12px; font-weight:800}
 
-    .overlay { position: fixed; inset: 0; z-index: 20; background: rgba(4,10,22,.84); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; }
-    .balaoDom { background: #fff; color: #123a7a; border-radius: 20px; padding: 20px 22px; max-width: 480px; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,.5); }
-    .balaoDom .em { font-size: 52px; } .balaoDom h2 { font-size: 22px; margin: 8px 0; } .balaoDom p { font-size: 16px; line-height: 1.5; color: #3a4d78; }
-    .balaoDom .concl { color: #c06a1a; font-weight: 800; }
-    .medalha { display: inline-block; background: radial-gradient(circle at 30% 30%, #ffe9a0, #d9a23c 70%); color: #5a3c00;
-      border-radius: 999px; width: 92px; height: 92px; line-height: 92px; font-size: 40px; box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 2px 6px rgba(255,255,255,.6); }
-    .hidden { display: none !important; }
+    .grade{display:grid; gap:14px; grid-template-columns:1fr}
+    @media(min-width:560px){ .grade{grid-template-columns:1fr 1fr} }
+    @media(min-width:860px){ .grade{grid-template-columns:1fr 1fr 1fr} }
+
+    .card{
+      position:relative; display:flex; flex-direction:column; text-decoration:none; color:var(--texto);
+      background:linear-gradient(160deg,var(--card),var(--card2)); border:1px solid var(--borda);
+      border-radius:20px; padding:20px 18px 18px; min-height:150px; overflow:hidden;
+      box-shadow:0 10px 24px rgba(0,0,0,.35); transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .card:hover{transform:translateY(-4px); box-shadow:0 16px 30px rgba(0,0,0,.45); border-color:var(--ac)}
+    .card:active{transform:translateY(0) scale(.99)}
+    .card::after{content:""; position:absolute; inset:0 0 auto 0; height:4px; background:var(--ac)}
+    .emoji{width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+      font-size:32px; background:color-mix(in srgb, var(--ac) 22%, #0b1836); border:1px solid color-mix(in srgb, var(--ac) 40%, transparent); margin-bottom:12px}
+    .card h3{margin:0 0 4px; font-size:20px}
+    .card p{margin:0; color:var(--suave); font-size:14px; line-height:1.4}
+    .tag{margin-top:auto; padding-top:12px; font-size:12px; font-weight:800; color:var(--ac); letter-spacing:.5px}
+
+    .card.brevemente{opacity:.6; pointer-events:none}
+    .card.brevemente .emoji{filter:grayscale(.4)}
+
+    /* faixa de instalação */
+    #instalar{display:none; max-width:900px; margin:20px auto 0; padding:14px 16px; border-radius:16px;
+      background:linear-gradient(160deg,#1a336a,#122446); border:1px solid var(--borda);
+      align-items:center; gap:12px; justify-content:space-between}
+    #instalar.ativo{display:flex; flex-wrap:wrap}
+    #instalar span{font-size:14px; color:#dfe9ff}
+    #btnInstalar{cursor:pointer; border:0; border-radius:999px; font-weight:800; font-size:14px; padding:10px 18px;
+      background:var(--ouro); color:#3a2a00; box-shadow:0 3px 0 #b8912f}
+    #btnInstalar:active{transform:translateY(2px); box-shadow:0 1px 0 #b8912f}
+
+    footer{max-width:900px; margin:26px auto 0; text-align:center; color:#5f74a6; font-size:12px}
   </style>
-  <script>
-    // 🐞 TRAVA CAÇA-BUG: qualquer erro de JS pinta uma FAIXA VERMELHA na tela.
-    // Assim o QA por screenshot PEGA o erro na hora (foi o que faltou antes).
-    (function () {
-      function mostra (msg) {
-        var d = document.getElementById('erroJS') || document.createElement('div');
-        d.id = 'erroJS';
-        d.style.cssText = 'position:fixed;left:0;top:0;right:0;z-index:99999;background:#c81e1e;color:#fff;font:700 14px system-ui;padding:10px 14px;white-space:pre-wrap;';
-        d.textContent = ' ERRO JS (o jogo travou): ' + msg;
-        if (!d.parentNode) document.body.appendChild(d);
-      }
-      window.addEventListener('error', function (e) { mostra((e.message || '') + ' @ ' + (e.filename || '') + ':' + (e.lineno || '')); });
-      window.addEventListener('unhandledrejection', function (e) { mostra('promise: ' + (e.reason && e.reason.message ? e.reason.message : e.reason)); });
-    })();
-  </script>
-  <script type="module" crossorigin src="./assets/index-Bsg1uV1O.js"></script>
 </head>
 <body>
-  <div id="game"></div>
+  <header>
+    <img class="planeta" src="./icone-192.png" alt="EducaVerso" width="96" height="96" />
+    <h1>Educa<b>Verso</b></h1>
+    <p class="sub">Um universo de brincadeiras que ensinam. Escolha uma aventura! 🚀</p>
+  </header>
 
-  <button id="btnOuvir">Ouvir</button>
+  <main>
+    <p class="titulo-secao">Aventuras</p>
+    <div class="grade">
 
-  <div id="hud" class="hidden">
-    <div id="dica"></div>
-    <div id="passos"><span class="vazio">seus passos aparecem aqui…</span></div>
-    <div class="btns">
-      <button class="seta" data-dir="cima">↑</button>
-      <button class="seta" data-dir="baixo">↓</button>
-      <button class="seta" data-dir="esq">←</button>
-      <button class="seta" data-dir="dir">→</button>
-      <button class="acao jogar" id="btnJogar">▶ Jogar</button>
-      <button class="acao limpar" id="btnLimpar">↺ Limpar</button>
+      <a class="card" style="--ac:#57e08a" href="./jogo.html?ilha">
+        <div class="emoji">🧭</div>
+        <h3>Ilha do Tesouro</h3>
+        <p>Monte a sequência de passos com as setas e leve o herói até o baú.</p>
+        <div class="tag">LÓGICA & ALGORITMO ›</div>
+      </a>
+
+      <a class="card" style="--ac:#ffcf5a" href="./jogo.html?tabuada">
+        <div class="emoji">🧮</div>
+        <h3>Tabuada Mágica</h3>
+        <p>Explore o mundo em pixel art e resolva as continhas de multiplicação.</p>
+        <div class="tag">MULTIPLICAÇÃO ›</div>
+      </a>
+
+      <a class="card" style="--ac:#7aa2ff" href="./jogo.html?fases">
+        <div class="emoji">🗺️</div>
+        <h3>Aventura em Fases</h3>
+        <p>Encontre a chave e vença cada desafio de navegação, fase após fase.</p>
+        <div class="tag">DESAFIOS ›</div>
+      </a>
+
+      <div class="card brevemente" style="--ac:#c58cff" aria-disabled="true">
+        <div class="emoji">✨</div>
+        <h3>Novas aventuras</h3>
+        <p>Mais brincadeiras chegando ao universo em breve.</p>
+        <div class="tag">EM BREVE</div>
+      </div>
+
     </div>
-  </div>
 
-  <div class="overlay" id="telaIntro">
-    <div class="balaoDom">
-      <div class="em"></div>
-      <h2>Ilha do Tesouro</h2>
-      <p>Uma ilha à noite, iluminada pela lua e por tochas. Explore, converse e
-         ajude quem precisar de você!</p>
-      <button class="acao jogar" id="btnComecar" style="margin-top:10px">Entrar na ilha 🧭</button>
+    <div id="instalar">
+      <span>📲 Instale o EducaVerso no seu aparelho e jogue até sem internet.</span>
+      <button id="btnInstalar">Instalar app</button>
     </div>
-  </div>
+  </main>
 
-  <div class="overlay hidden" id="telaWin">
-    <div class="balaoDom">
-      <div class="medalha">🏆</div>
-      <h2>Você criou um ALGORITMO!</h2>
-      <p>Uma sequência de passos, na ordem certa, que resolveu um problema de
-         verdade — o Chico chegou ao baú por sua causa.</p>
-      <p class="concl">Quem monta os passos certinhos… programa! </p>
-      <button class="acao jogar" id="btnDeNovo" style="margin-top:10px">Continuar explorando </button>
-    </div>
-  </div>
+  <footer>Feito com 💛 para aprender brincando · EducaVerso</footer>
 
+  <script>
+    // --- PWA: registra o service worker (offline + instalável) ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+
+    // --- Botão "Instalar app" (aparece quando o navegador permite) ---
+    var evtInstalar = null;
+    var faixa = document.getElementById('instalar');
+    var btn = document.getElementById('btnInstalar');
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault(); evtInstalar = e; faixa.classList.add('ativo');
+    });
+    btn.addEventListener('click', function () {
+      if (!evtInstalar) return;
+      evtInstalar.prompt();
+      evtInstalar.userChoice.finally(function () { evtInstalar = null; faixa.classList.remove('ativo'); });
+    });
+    window.addEventListener('appinstalled', function () { faixa.classList.remove('ativo'); });
+  </script>
 </body>
 </html>
